@@ -51,11 +51,11 @@ class UserRepository {
 
   // The U of CRUD - Update operation
 
-  async update(user: User) {
+  async update(user: Omit<User, "id" | "created_at">, id: number) {
     // Execute the SQL UPDATE operation to modify an existing user
     const [result] = await databaseClient.query<Result>(
       "update user set username = ?, email = ?, password = ? where id = ?",
-      [user.username, user.email, user.password, user.id],
+      [user.username, user.email, user.password, id],
     );
 
     // Return the affected rows after the SQL request

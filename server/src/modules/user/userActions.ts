@@ -1,8 +1,8 @@
+import argon2 from "argon2";
 import type { RequestHandler } from "express";
 
 // Import access to data
 import userRepository from "./userRepository";
-// import { User } from "./IUser";
 
 // The B of BREAD - Browse (Read All) operation
 const browse: RequestHandler = async (req, res, next) => {
@@ -39,6 +39,37 @@ const read: RequestHandler = async (req, res, next) => {
 };
 
 // The E of BREAD - Edit (Update) operation
+const edit: RequestHandler = async (req, res, next) => {
+  try {
+    const userId = Number(req.params.id);
+    const newUser = {
+      username: req.body.username,
+      email: req.body.email,
+      password: req.body.password,
+    };
+
+    // Does user exist by id ?
+    const doesUserExist = await userRepository.read(userId);
+    if (doesUserExist) {
+      // If yes, hash the new password
+      const hashPassword = await argon2.hash(newUser.password);
+
+      const user = {
+        ...newUser,
+        password: hashPassword,
+      };
+
+      // Update the user
+      const updateUser = await userRepository.update(user, userId);
+      res.sendStatus(200);
+    } else {
+      res.sendStatus(404);
+    }
+  } catch (err) {
+    // Pass any errors to the error-handling middleware
+    next(err);
+  }
+};
 
 // The A of BREAD - Add (Create) operation
 const add: RequestHandler = async (req, res, next) => {
@@ -50,10 +81,19 @@ const add: RequestHandler = async (req, res, next) => {
       password: req.body.password,
     };
 
+    // Verify if email already exist in DTB
     const doesUserExist = await userRepository.readEmail(newUser.email);
     if (!doesUserExist) {
+      // Password hash
+      const hashPassword = await argon2.hash(newUser.password);
+
+      const user = {
+        ...newUser,
+        password: hashPassword,
+      };
+
       // Create the user
-      const insertId = await userRepository.create(newUser);
+      const insertId = await userRepository.create(user);
 
       // Respond with HTTP 201 (Created) and the ID of the newly inserted user
       res.status(201).json({ insertId });
@@ -86,4 +126,4 @@ const destroy: RequestHandler = async (req, res, next) => {
   }
 };
 
-export default { browse, read, add, destroy };
+export default { browse, read, edit, add, destroy };
