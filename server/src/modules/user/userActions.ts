@@ -50,6 +50,11 @@ const add: RequestHandler = async (req, res, next) => {
       password: req.body.password,
     };
 
+    const doesUserExist = await userRepository.readEmail(newUser.email);
+    if (doesUserExist) {
+      res.status(409);
+    }
+
     // Create the user
     const insertId = await userRepository.create(newUser);
 

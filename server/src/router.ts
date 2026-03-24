@@ -17,7 +17,7 @@ import userActions from "./modules/user/userActions";
 // USER ROUTES
 router.get("/api/users", userActions.browse);
 router.get("/api/users/:id", userActions.read);
-
+router.post("/api/users", userActions.add);
 /* ************************************************************************* */
 
 export default router;
