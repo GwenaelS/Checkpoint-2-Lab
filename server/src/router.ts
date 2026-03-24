@@ -7,11 +7,15 @@ const router = express.Router();
 /* ************************************************************************* */
 
 // Define item-related routes
-import itemActions from "./modules/item/itemActions";
+// import itemActions from "./modules/item/itemActions";
+import userActions from "./modules/user/userActions";
 
-router.get("/api/items", itemActions.browse);
-router.get("/api/items/:id", itemActions.read);
-router.post("/api/items", itemActions.add);
+// router.get("/api/items", itemActions.browse);
+// router.get("/api/items/:id", itemActions.read);
+// router.post("/api/items", itemActions.add);
+
+// USER ROUTES
+router.get("/api/users", userActions.browse);
 
 /* ************************************************************************* */
 
