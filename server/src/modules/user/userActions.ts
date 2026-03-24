@@ -51,15 +51,15 @@ const add: RequestHandler = async (req, res, next) => {
     };
 
     const doesUserExist = await userRepository.readEmail(newUser.email);
-    if (doesUserExist) {
-      res.status(409);
+    if (!doesUserExist) {
+      // Create the user
+      const insertId = await userRepository.create(newUser);
+
+      // Respond with HTTP 201 (Created) and the ID of the newly inserted user
+      res.status(201).json({ insertId });
+    } else {
+      res.sendStatus(409);
     }
-
-    // Create the user
-    const insertId = await userRepository.create(newUser);
-
-    // Respond with HTTP 201 (Created) and the ID of the newly inserted user
-    res.status(201).json({ insertId });
   } catch (err) {
     // Pass any errors to the error-handling middleware
     next(err);
