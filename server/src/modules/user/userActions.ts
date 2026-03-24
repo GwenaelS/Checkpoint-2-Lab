@@ -67,5 +67,23 @@ const add: RequestHandler = async (req, res, next) => {
 };
 
 // The D of BREAD - Destroy (Delete) operation
+const destroy: RequestHandler = async (req, res, next) => {
+  try {
+    const userId = Number(req.params.id);
+    const doesUserExist = await userRepository.read(userId);
 
-export default { browse, read, add };
+    if (!doesUserExist) {
+      res.sendStatus(404);
+      return;
+    }
+
+    const deleteUser = await userRepository.delete(userId);
+
+    res.sendStatus(204);
+  } catch (err) {
+    // Pass any errors to the error-handling middleware
+    next(err);
+  }
+};
+
+export default { browse, read, add, destroy };
