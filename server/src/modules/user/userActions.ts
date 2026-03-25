@@ -11,7 +11,7 @@ const browse: RequestHandler = async (req, res, next) => {
     const users = await userRepository.readAll();
 
     // Respond with the users in JSON format
-    res.json(users);
+    res.status(200).json(users);
   } catch (err) {
     // Pass any errors to the error-handling middleware
     next(err);
@@ -28,9 +28,9 @@ const read: RequestHandler = async (req, res, next) => {
     // If the user is not found, respond with HTTP 404 (Not Found)
     // Otherwise, respond with the user in JSON format
     if (user == null) {
-      res.sendStatus(404);
+      res.status(404).json({ information: "User not found" });
     } else {
-      res.json(user);
+      res.status(200).json(user);
     }
   } catch (err) {
     // Pass any errors to the error-handling middleware
@@ -41,30 +41,50 @@ const read: RequestHandler = async (req, res, next) => {
 // The E of BREAD - Edit (Update) operation
 const edit: RequestHandler = async (req, res, next) => {
   try {
+    // Verify if there is a request, and informations within
+    if (!req.body) {
+      res.status(400).json({ information: "Informations incomplete" });
+      return;
+    }
+
+    // Only for PUT changes (modify later on PATCH)
+    if (!req.body.username || !req.body.email || !req.body.password) {
+      res.status(400).json({ information: "Informations incomplete" });
+      return;
+    }
+
+    // Fetch a specific user based on the provided ID
     const userId = Number(req.params.id);
-    const newUser = {
+    if (!userId) {
+      res.status(404).json({ information: "You must provide a user" });
+      return;
+    }
+
+    // Verify if user already exist with an id
+    const doesUserExist = await userRepository.read(userId);
+    if (!doesUserExist) {
+      res.status(404).json({ information: "User not found" });
+    }
+
+    // Hash the new password
+    const hashPassword = await argon2.hash(req.body.password);
+
+    const user = {
       username: req.body.username,
       email: req.body.email,
-      password: req.body.password,
+      password: hashPassword,
     };
 
-    // Does user exist by id ?
-    const doesUserExist = await userRepository.read(userId);
-    if (doesUserExist) {
-      // If yes, hash the new password
-      const hashPassword = await argon2.hash(newUser.password);
-
-      const user = {
-        ...newUser,
-        password: hashPassword,
-      };
-
-      // Update the user
-      const updateUser = await userRepository.update(user, userId);
-      res.sendStatus(200);
-    } else {
-      res.sendStatus(404);
+    // Update the user
+    const updateUser = await userRepository.update(user, userId);
+    if (updateUser === 0) {
+      res.status(400).json({ information: "Cannot update the user" });
     }
+
+    // Respond with the users in JSON format
+    res
+      .status(200)
+      .json({ information: "User updated successfully", updateUser });
   } catch (err) {
     // Pass any errors to the error-handling middleware
     next(err);
@@ -74,32 +94,41 @@ const edit: RequestHandler = async (req, res, next) => {
 // The A of BREAD - Add (Create) operation
 const add: RequestHandler = async (req, res, next) => {
   try {
-    // Extract the user data from the request body
-    const newUser = {
+    // Verify if there is a request and the fields are all present
+    if (
+      !req.body ||
+      !req.body.username ||
+      !req.body.email ||
+      !req.body.password
+    ) {
+      res.status(400).json({ information: "Informations incomplete" });
+      return;
+    }
+
+    // Verify if user already exist with an email
+    const doesUserExist = await userRepository.readEmail(req.body.email);
+    if (doesUserExist) {
+      res.status(409).json({ information: "User already exist" });
+      return;
+    }
+
+    // Password hash
+    const hashPassword = await argon2.hash(req.body.password);
+
+    const user = {
       username: req.body.username,
       email: req.body.email,
-      password: req.body.password,
+      password: hashPassword,
     };
 
-    // Verify if email already exist in DTB
-    const doesUserExist = await userRepository.readEmail(newUser.email);
-    if (!doesUserExist) {
-      // Password hash
-      const hashPassword = await argon2.hash(newUser.password);
-
-      const user = {
-        ...newUser,
-        password: hashPassword,
-      };
-
-      // Create the user
-      const insertId = await userRepository.create(user);
-
-      // Respond with HTTP 201 (Created) and the ID of the newly inserted user
-      res.status(201).json({ insertId });
-    } else {
-      res.sendStatus(409);
+    // Create the user
+    const insertId = await userRepository.create(user);
+    if (!insertId) {
+      res.status(400).json({ information: "Cannot create the user" });
     }
+
+    // Respond with HTTP 201 (Created) and the ID of the newly inserted user
+    res.status(201).json({ information: "User created", insertId });
   } catch (err) {
     // Pass any errors to the error-handling middleware
     next(err);
@@ -110,16 +139,22 @@ const add: RequestHandler = async (req, res, next) => {
 const destroy: RequestHandler = async (req, res, next) => {
   try {
     const userId = Number(req.params.id);
-    const doesUserExist = await userRepository.read(userId);
+    if (!userId) {
+      res.status(400).json({ information: "An user must be provided" });
+    }
 
+    const doesUserExist = await userRepository.read(userId);
     if (!doesUserExist) {
-      res.sendStatus(404);
+      res.status(404).json({ information: "User not found" });
       return;
     }
 
     const deleteUser = await userRepository.delete(userId);
+    if (deleteUser === 0) {
+      res.status(400).json({ information: "Cannot delete the user" });
+    }
 
-    res.sendStatus(204);
+    res.status(204).json({ information: "User deleted", deleteUser });
   } catch (err) {
     // Pass any errors to the error-handling middleware
     next(err);
