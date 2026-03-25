@@ -46,7 +46,7 @@ class TaskRepository {
 
   // The U of CRUD - Update operation
 
-  async update(task: Omit<TTask, "id" | "created_at">, id: number) {
+  async update(task: Omit<TTask, "id" | "created_at" | "task_id">, id: number) {
     // Execute the SQL UPDATE operation to update a task
     const [result] = await databaseClient.query<Result>(
       "update task set title = ?, description = ?, status = ?, user_id = ? where id = ?",
