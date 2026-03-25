@@ -64,6 +64,7 @@ const edit: RequestHandler = async (req, res, next) => {
     const doesUserExist = await userRepository.read(userId);
     if (!doesUserExist) {
       res.status(404).json({ information: "User not found" });
+      return;
     }
 
     // Hash the new password
@@ -79,6 +80,7 @@ const edit: RequestHandler = async (req, res, next) => {
     const updateUser = await userRepository.update(user, userId);
     if (updateUser === 0) {
       res.status(400).json({ information: "Cannot update the user" });
+      return;
     }
 
     // Respond with the users in JSON format
@@ -125,6 +127,7 @@ const add: RequestHandler = async (req, res, next) => {
     const insertId = await userRepository.create(user);
     if (!insertId) {
       res.status(400).json({ information: "Cannot create the user" });
+      return;
     }
 
     // Respond with HTTP 201 (Created) and the ID of the newly inserted user
@@ -141,6 +144,7 @@ const destroy: RequestHandler = async (req, res, next) => {
     const userId = Number(req.params.id);
     if (!userId) {
       res.status(400).json({ information: "An user must be provided" });
+      return;
     }
 
     const doesUserExist = await userRepository.read(userId);
@@ -152,9 +156,10 @@ const destroy: RequestHandler = async (req, res, next) => {
     const deleteUser = await userRepository.delete(userId);
     if (deleteUser === 0) {
       res.status(400).json({ information: "Cannot delete the user" });
+      return;
     }
 
-    res.status(204).json({ information: "User deleted", deleteUser });
+    res.sendStatus(204);
   } catch (err) {
     // Pass any errors to the error-handling middleware
     next(err);
