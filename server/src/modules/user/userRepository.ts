@@ -1,12 +1,12 @@
 import databaseClient from "../../../database/client";
 
 import type { Result, Rows } from "../../../database/client";
-import type { User } from "../../types/IUser";
+import type { TUser } from "../../types/TUser";
 
 class UserRepository {
   // The C of CRUD - Create operation
 
-  async create(user: Omit<User, "id" | "created_at">) {
+  async create(user: Omit<TUser, "id" | "created_at">) {
     // Execute the SQL INSERT query to add a new user to the "user" table
     const [result] = await databaseClient.query<Result>(
       "insert into user (username, email, password) values (?, ?, ?)",
@@ -27,7 +27,7 @@ class UserRepository {
     );
 
     // Return the first row of the result, which represents the user
-    return rows[0] as User;
+    return rows[0] as TUser;
   }
 
   async readAll() {
@@ -35,7 +35,7 @@ class UserRepository {
     const [rows] = await databaseClient.query<Rows>("select * from user");
 
     // Return the array of users
-    return rows as User[];
+    return rows as TUser[];
   }
 
   async readEmail(email: string) {
@@ -46,12 +46,12 @@ class UserRepository {
     );
 
     // Return the first row of the result, which represents the user
-    return rows[0] as User;
+    return rows[0] as TUser;
   }
 
   // The U of CRUD - Update operation
 
-  async update(user: Omit<User, "id" | "created_at">, id: number) {
+  async update(user: Omit<TUser, "id" | "created_at">, id: number) {
     // Execute the SQL UPDATE operation to modify an existing user
     const [result] = await databaseClient.query<Result>(
       "update user set username = ?, email = ?, password = ? where id = ?",
