@@ -1,4 +1,3 @@
-import argon2 from "argon2";
 import type { RequestHandler } from "express";
 
 // Import access to data

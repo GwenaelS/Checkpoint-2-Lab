@@ -9,7 +9,7 @@ class TaskRepository {
   async create(task: Omit<TTask, "id" | "created_at">) {
     // Execute the SQL INSERT query to add a new task to the "task" table
     const [result] = await databaseClient.query<Result>(
-      "insert into task (title, description, status, user_id, project_id) values (?, ?, ?, ?)",
+      "insert into task (title, description, status, user_id, project_id) values (?, ?, ?, ?, ?)",
       [
         task.title,
         task.description,
@@ -46,7 +46,10 @@ class TaskRepository {
 
   // The U of CRUD - Update operation
 
-  async update(task: Omit<TTask, "id" | "created_at" | "task_id">, id: number) {
+  async update(
+    task: Omit<TTask, "id" | "created_at" | "project_id">,
+    id: number,
+  ) {
     // Execute the SQL UPDATE operation to update a task
     const [result] = await databaseClient.query<Result>(
       "update task set title = ?, description = ?, status = ?, user_id = ? where id = ?",
