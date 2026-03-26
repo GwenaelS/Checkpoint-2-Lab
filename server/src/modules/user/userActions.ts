@@ -1,6 +1,7 @@
 import argon2 from "argon2";
 import type { RequestHandler } from "express";
 
+import type { AuthRequest } from "../../middlewares/verifyToken";
 // Import access to data
 import userRepository from "./userRepository";
 
@@ -19,18 +20,22 @@ const browse: RequestHandler = async (req, res, next) => {
 };
 
 // The R of BREAD - Read operation
-const read: RequestHandler = async (req, res, next) => {
+const read: RequestHandler = async (req: AuthRequest, res, next) => {
   try {
     // Fetch a specific user based on the provided ID
-    const userId = Number(req.params.id);
-    const user = await userRepository.read(userId);
+    const user = req.user;
+    if (!user) {
+      res.status(400).json({ information: "ttt" });
+      return;
+    }
 
+    const result = await userRepository.read(user.id);
     // If the user is not found, respond with HTTP 404 (Not Found)
     // Otherwise, respond with the user in JSON format
-    if (user == null) {
+    if (result == null) {
       res.status(404).json({ information: "User not found" });
     } else {
-      res.status(200).json(user);
+      res.status(200).json({ information: "User found", user });
     }
   } catch (err) {
     // Pass any errors to the error-handling middleware

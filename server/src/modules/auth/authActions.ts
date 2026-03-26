@@ -30,7 +30,7 @@ const login: RequestHandler = async (req, res, next) => {
 
     const secret = process.env.APP_SECRET;
     if (!secret) {
-      res.status(500).json({ information: "Server error 1" });
+      res.status(500).json({ information: "Server error" });
       return;
     }
 
@@ -43,7 +43,7 @@ const login: RequestHandler = async (req, res, next) => {
       secret,
     );
     if (!token) {
-      res.status(500).json({ information: "Server error 2" });
+      res.status(500).json({ information: "Server error" });
       return;
     }
 

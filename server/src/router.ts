@@ -6,6 +6,7 @@ const router = express.Router();
 // Define Your API Routes Here
 /* ************************************************************************* */
 
+import { verifyToken } from "./middlewares/verifyToken";
 import authActions from "./modules/auth/authActions";
 import projectActions from "./modules/project/projectActions";
 import taskActions from "./modules/task/taskActions";
@@ -34,6 +35,7 @@ router.delete("/api/tasks/:id", taskActions.destroy);
 
 // ========== AUTH ROUTES ==========
 router.post("/api/login", authActions.login);
+router.get("/api/me", verifyToken, userActions.read);
 
 /* ************************************************************************* */
 
