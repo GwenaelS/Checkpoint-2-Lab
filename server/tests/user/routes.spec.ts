@@ -15,7 +15,7 @@ afterEach(() => {
 });
 
 // Test suite for the GET /api/users route
-describe.skip("GET /api/users", () => {
+describe("GET /api/users", () => {
   it("should fetch users successfully", async () => {
     // Mock empty rows returned from the database
     const rows = [] as Rows;
@@ -35,7 +35,7 @@ describe.skip("GET /api/users", () => {
 });
 
 // Test suite for the GET /api/users/:id route
-describe.skip("GET /api/users/:id", () => {
+describe("GET /api/users/:id", () => {
   it("should fetch a single user successfully", async () => {
     // Mock rows returned from the database
     const rows = [{}] as Rows;
@@ -67,16 +67,15 @@ describe.skip("GET /api/users/:id", () => {
 
     // Assertions
     expect(response.status).toBe(404);
-    expect(response.body).toEqual({});
+    expect(response.body).toEqual({ information: "User not found" });
   });
 });
 
 // Test suite for the POST /api/users route
-// Doesn't pass: maybe something to change in app config :/
-describe.skip("POST /api/users", () => {
+describe("POST /api/users", () => {
   it("should add a new user successfully", async () => {
     // Mock result of the database query
-    const result = { insertId: 1 } as Result;
+    const result = { insertId: 3 } as Result;
 
     // Mock the implementation of the database query method
     jest
@@ -84,7 +83,11 @@ describe.skip("POST /api/users", () => {
       .mockImplementation(async () => [result, []]);
 
     // Fake user data
-    const fakeUser = { title: "foo", user_id: 0 };
+    const fakeUser = {
+      username: "test",
+      email: "test@gmail.com",
+      password: "12345",
+    };
 
     // Send a POST request to the /api/users endpoint with a test user
     const response = await supertest(app).post("/api/users").send(fakeUser);
@@ -97,28 +100,27 @@ describe.skip("POST /api/users", () => {
 
   it("should fail on invalid request body", async () => {
     // Mock result of the database query
-    const result = { insertId: 1 } as Result;
+    const result = { insertId: 3 } as Result;
 
     // Mock the implementation of the database query method
     jest
       .spyOn(databaseClient, "query")
       .mockImplementation(async () => [result, []]);
 
-    // Fake user data with missing user_id
-    const fakeUser = { title: "foo" };
+    // Fake user data with missing username
+    const fakeUser = { email: "test@gmail.com", password: "12345" };
 
     // Send a POST request to the /api/users endpoint with a test user
     const response = await supertest(app).post("/api/users").send(fakeUser);
 
     // Assertions
     expect(response.status).toBe(400);
-    expect(response.body).toEqual({});
+    expect(response.body).toEqual({ information: "Informations incomplete" });
   });
 });
 
 // Test suite for the PUT /api/users/:id route
-// This route is not yet implemented :/
-describe.skip("PUT /api/users/:id", () => {
+describe("PUT /api/users/:id", () => {
   it("should update an existing user successfully", async () => {
     // Mock result of the database query
     const result = { affectedRows: 1 } as Result;
@@ -129,10 +131,14 @@ describe.skip("PUT /api/users/:id", () => {
       .mockImplementation(async () => [result, []]);
 
     // Fake user data
-    const fakeUser = { title: "foo", user_id: 0 };
+    const fakeUser = {
+      username: "Test",
+      email: "test@gmail.com",
+      password: "test",
+    };
 
     // Send a PUT request to the /api/users/:id endpoint with a test user
-    const response = await supertest(app).put("/api/users/42").send(fakeUser);
+    const response = await supertest(app).put("/api/users/2").send(fakeUser);
 
     // Assertions
     expect(response.status).toBe(204);
@@ -148,15 +154,15 @@ describe.skip("PUT /api/users/:id", () => {
       .spyOn(databaseClient, "query")
       .mockImplementation(async () => [result, []]);
 
-    // Fake user data with missing user_id
-    const fakeUser = { title: "foo" };
+    // Fake user data with missing username
+    const fakeUser = { email: "test@gmail.com", password: "test" };
 
     // Send a PUT request to the /api/users/:id endpoint with a test user
-    const response = await supertest(app).put("/api/users/42").send(fakeUser);
+    const response = await supertest(app).put("/api/users/2").send(fakeUser);
 
     // Assertions
     expect(response.status).toBe(400);
-    expect(response.body).toEqual({});
+    expect(response.body).toEqual({ information: "Informations incomplete" });
   });
 
   it("should fail on invalid id", async () => {
@@ -168,21 +174,25 @@ describe.skip("PUT /api/users/:id", () => {
       .spyOn(databaseClient, "query")
       .mockImplementation(async () => [result, []]);
 
-    // Fake user data with missing user_id
-    const fakeUser = { title: "foo", user_id: 0 };
+    // Fake user data
+    const fakeUser = {
+      username: "Test",
+      email: "test@gmail.com",
+      password: "test",
+    };
 
     // Send a PUT request to the /api/users/:id endpoint with a test user
     const response = await supertest(app).put("/api/users/43").send(fakeUser);
 
     // Assertions
     expect(response.status).toBe(404);
-    expect(response.body).toEqual({});
+    expect(response.body).toEqual({ information: "User not found" });
   });
 });
 
 // Test suite for the DELETE /api/users/:id route
 // This route is not yet implemented :/
-describe.skip("DELETE /api/users/:id", () => {
+describe("DELETE /api/users/:id", () => {
   it("should delete an existing user successfully", async () => {
     // Mock result of the database query
     const result = { affectedRows: 1 } as Result;
@@ -214,6 +224,6 @@ describe.skip("DELETE /api/users/:id", () => {
 
     // Assertions
     expect(response.status).toBe(404);
-    expect(response.body).toEqual({});
+    expect(response.body).toEqual({ information: "User not found" });
   });
 });

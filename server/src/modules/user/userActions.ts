@@ -25,7 +25,7 @@ const read: RequestHandler = async (req: AuthRequest, res, next) => {
     // Fetch a specific user based on the provided ID
     const user = req.user;
     if (!user) {
-      res.status(400).json({ information: "ttt" });
+      res.status(404).json({ information: "User not found" });
       return;
     }
 
@@ -68,6 +68,7 @@ const edit: RequestHandler = async (req, res, next) => {
     // Verify if user already exist with an id
     const doesUserExist = await userRepository.read(userId);
     if (!doesUserExist) {
+      // 405
       res.status(404).json({ information: "User not found" });
       return;
     }
@@ -84,7 +85,7 @@ const edit: RequestHandler = async (req, res, next) => {
     // Update the user
     const updateUser = await userRepository.update(user, userId);
     if (updateUser === 0) {
-      res.status(400).json({ information: "Cannot update the user" });
+      res.status(404).json({ information: "Cannot update the user" });
       return;
     }
 
