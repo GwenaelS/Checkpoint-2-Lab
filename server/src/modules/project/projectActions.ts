@@ -81,7 +81,7 @@ const edit: RequestHandler = async (req, res, next) => {
 
     // Respond with the projects in JSON format
     res
-      .status(200)
+      .status(204)
       .json({ information: "Project updated successfully", updateProject });
   } catch (err) {
     // Pass any errors to the error-handling middleware

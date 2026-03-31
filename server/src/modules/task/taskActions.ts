@@ -67,6 +67,7 @@ const edit: RequestHandler = async (req, res, next) => {
     // Verify if task already exist with an id
     const doesTaskExist = await taskRepository.read(taskId);
     if (!doesTaskExist) {
+      // Here is the bug
       res.status(404).json({ information: "Task not found" });
       return;
     }
@@ -87,7 +88,7 @@ const edit: RequestHandler = async (req, res, next) => {
 
     // Respond with the tasks in JSON format
     res
-      .status(200)
+      .status(204)
       .json({ information: "Task updated successfully", updateTask });
   } catch (err) {
     // Pass any errors to the error-handling middleware
