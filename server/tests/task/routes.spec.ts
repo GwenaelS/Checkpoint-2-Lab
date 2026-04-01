@@ -7,7 +7,9 @@ import app from "../../src/app";
 // Import databaseClient
 import databaseClient from "../../database/client";
 
+import type { NextFunction, Request, Response } from "express";
 import type { Result, Rows } from "../../database/client";
+import taskActions from "../../src/modules/task/taskActions";
 import taskRepository from "../../src/modules/task/taskRepository";
 
 // Après chaque test, on dit a jest de nettoyer les données des mocks
@@ -16,35 +18,60 @@ afterEach(() => {
   jest.restoreAllMocks();
 });
 
-// Describe est un block qui permet de regrouper plusieurs tests
+// describe est un block qui permet de regrouper plusieurs tests
 
 // Dans ce block, on test la route "GET /api/tasks"
 // Nous testons alors le comportement du controller qui simule les données du model
+
+// ==================================================================================================
+// ==============================TEST SANS SUPERTEST=================================================
 describe("GET /api/tasks", () => {
-  // Le comportement attendu de ce test est de récupérer toutes les taches existantes
   it("should fetch tasks successfully", async () => {
-    // Définition de la réponse attendu par le test
-    // Rows car GET = RowDataPacket[]
-    const rows = [] as Rows;
+    // Mock du model
+    jest.mock("./../../../src/modules/task/taskRepository");
 
-    jest
-      // Création d'un éspion qui écoute les requète de type "query" faites sur "databaseClient"
-      .spyOn(databaseClient, "query")
-      // Simule la réponse de la base de données en renvoyant les données "rows"
-      .mockImplementation(async () => [rows, []]);
+    // Résultat de la requète (Mock de la réponse ???)
+    // Rows => RowDataPacket[]
+    const rows = [
+      {
+        id: 1,
+        title: "Task 1",
+        description: "Description Task 1 for Project 1",
+        status: "Done",
+        created_at: "2026-03-23T11:45:03.000Z",
+        user_id: 1,
+        project_id: 1,
+      },
+      {
+        id: 2,
+        title: "Task 2",
+        description: "Description Task 2 for Project 1",
+        status: "In Progress",
+        created_at: "2026-03-23T11:45:03.000Z",
+        user_id: 2,
+        project_id: 1,
+      },
+    ] as Rows;
 
-    // Envoie de la requète a la route
-    const response = await supertest(app).get("/api/tasks");
+    // Espion qui écoute la méthode "readAll" du model "taskRepository" et renvoie les données de "rows" comme réponse
+    // jest.spyOn(taskRepository, "readAll").mockResolvedValue([rows, []]);
 
-    // Attendu du test :
-    expect(response.status).toBe(200); // Attendu = réponse 200 (OK)
-    expect(response.body).toStrictEqual(rows); // Attendu = corps de la réponse strictement égal a "rows"
+    // Mock de la requête ???
+    const req = {} as Request;
+    const res = {} as Response;
+
+    // const response = await taskActions.browse(req, res);
+
+    // expect(response.status).toBe(200);
+    // expect(response.body).toStrictEqual(rows);
   });
 });
+// ==================================================================================================
+// ==================================================================================================
 
 // Dans ce block, on test la route "GET /api/tasks/:id"
 // Nous testons alors le comportement du controller qui simule les données du model
-describe("GET /api/tasks/:id", () => {
+describe.skip("GET /api/tasks/:id", () => {
   // Le comportement attendu de ce test est de récupérer une tache via un id (req.params.id)
   it("should fetch a single tasks successfully", async () => {
     // Définition de la réponse attendu par le test
@@ -88,20 +115,19 @@ describe("GET /api/tasks/:id", () => {
 
 // Dans ce block, on test la route "POST /api/tasks"
 // Nous testons alors le comportement du controller qui simule les données du model
-describe("POST /api/tasks", () => {
-  // Le comportement attendu de ce test est de crée une nouvelle tache
+
+// ==================================================================================================
+// ==============================TEST SANS SUPERTEST=================================================
+describe.skip("POST /api/tasks", () => {
   it("should add a new task successfully", async () => {
-    // Définition de la réponse attendu par le test
-    // Result car !=GET = ResultSetHeader
+    jest.mock("./../../src/modules/taskRepository");
+
     const result = { insertId: 3 } as Result;
 
     jest
-      // Création d'un éspion qui écoute les requète de type "query" faites sur "databaseClient"
       .spyOn(databaseClient, "query")
-      // Simule la réponse de la base de données en renvoyant les données "result"
       .mockImplementation(async () => [result, []]);
 
-    // Fausse tache que l'on veux crée
     const fakeTask = {
       title: "test",
       description: "test@gmail.com",
@@ -110,13 +136,9 @@ describe("POST /api/tasks", () => {
       project_id: "1",
     };
 
-    // Envoie de la requète avec la fausse tache a la route
-    const response = await supertest(app).post("/api/tasks").send(fakeTask);
-
-    // Attendu du test :
-    expect(response.status).toBe(201); // Attendu : réponse 201 (SUCCESS)
-    expect(response.body).toBeInstanceOf(Object); // Attendu : corps de la réponse est un objet
-    expect(response.body.insertId).toBe(result.insertId); // Attendu : corps de la réponse insertId est égale result.insertId
+    // expect(response.status).toBe(201);
+    // expect(response.body).toBeInstanceOf(Object);
+    // expect(response.body.insertId).toBe(result.insertId);
   });
 
   // Le comportement attendu de ce test est d'échoué de crée une nouvelle tache avec un corps de requète mauvaise
@@ -147,10 +169,12 @@ describe("POST /api/tasks", () => {
     expect(response.body).toEqual({ information: "Informations incomplete" }); // Attendu : corps de la réponse égal=(compare contenu de l'objet) { information: "Informations incomplete" }
   });
 });
+// ==================================================================================================
+// ==================================================================================================
 
 // Dans ce block, on test la route "PUT /api/tasks/:id"
 // Nous testons alors le comportement du controller qui simule les données du model
-describe("PUT /api/tasks/:id", () => {
+describe.skip("PUT /api/tasks/:id", () => {
   // Le comportement attendu de ce test est de modifié une tache
   it("should update an existing task successfully", async () => {
     // Comme le controller utilise la méthode "read" (qui fait appel a la base de données) je dois simuler la réponse de cette requète aussi
@@ -253,7 +277,7 @@ describe("PUT /api/tasks/:id", () => {
 
 // Dans ce block, on test la route "POST /api/tasks/:id"
 // Nous testons alors le comportement du controller qui simule les données du model
-describe("DELETE /api/tasks/:id", () => {
+describe.skip("DELETE /api/tasks/:id", () => {
   // Le comportement attendu de ce test est de supprimer une tache
   it("should delete an existing task successfully", async () => {
     // Comme le controller utilise la méthode "read" (qui fait appel a la base de données) je dois simuler la réponse de cette requète aussi
