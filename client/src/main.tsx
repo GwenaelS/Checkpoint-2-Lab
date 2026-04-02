@@ -11,6 +11,7 @@ import Dashboard from "./pages/dashboard/Dashboard";
 import Home from "./pages/home/Home";
 import Login from "./pages/login/Login";
 import Register from "./pages/register/Register";
+import WipPage from "./pages/wipPage/WipPage";
 
 // Import additional components for new routes
 // Try creating these components in the "pages" folder
@@ -38,6 +39,10 @@ const router = createBrowserRouter([
       {
         path: "register",
         element: <Register />,
+      },
+      {
+        path: "wip",
+        element: <WipPage />,
       },
       {
         path: "dashboard",

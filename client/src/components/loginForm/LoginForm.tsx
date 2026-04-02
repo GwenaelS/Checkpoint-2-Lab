@@ -101,7 +101,7 @@ export default function LoginForm() {
           </label>
           <button
             type="submit"
-            className="btn bg-purple-800 btn-wide btn-circle"
+            className="btn bg-purple-800 btn-wide shadow-md shadow-white"
           >
             Valider
           </button>

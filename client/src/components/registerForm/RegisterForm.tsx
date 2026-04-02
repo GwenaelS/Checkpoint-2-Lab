@@ -1,10 +1,42 @@
-import { Link } from "react-router";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router";
 
 export default function RegisterForm() {
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch("http://localhost:3310/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, email, password }),
+        credentials: "include",
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("Inscription reussi :", data);
+        navigate("/login");
+      } else {
+        alert(data.message || "Erreur de connexion");
+      }
+    } catch (err) {
+      console.error("Erreur réseau :", err);
+    }
+  };
   return (
     <>
       <div className="min-h-[60vh] flex flex-col items-center justify-center">
-        <form className="flex flex-col gap-4 w-full items-center">
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col gap-4 w-full items-center"
+        >
           {/* Username */}
           <label className="input validator">
             <svg
@@ -32,6 +64,8 @@ export default function RegisterForm() {
               minLength={3}
               maxLength={30}
               title="Only letters, numbers or dash"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
             />
           </label>
 
@@ -54,7 +88,13 @@ export default function RegisterForm() {
                 <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
               </g>
             </svg>
-            <input type="email" placeholder="mail@site.com" required />
+            <input
+              type="email"
+              placeholder="mail@site.com"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </label>
 
           {/* Password */}
@@ -81,6 +121,8 @@ export default function RegisterForm() {
               required
               placeholder="Password"
               minLength={5}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
           </label>
           <button
