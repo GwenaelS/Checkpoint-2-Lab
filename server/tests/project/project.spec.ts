@@ -64,7 +64,7 @@ describe("GET /api/projects/:id", () => {
       .mockImplementation(async () => [rows, []]);
 
     // Send a GET request to the /api/projects/:id endpoint with an invalid ID
-    const response = await supertest(app).get("/api/projects/0");
+    const response = await supertest(app).get("/api/projects/100");
 
     // Assertions
     expect(response.status).toBe(404);
