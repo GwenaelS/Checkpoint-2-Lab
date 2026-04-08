@@ -5,8 +5,5 @@ module.exports = {
   testPathIgnorePatterns: [
     "/tests/install.test.ts",
     "/tests/item/routes.spec.ts",
-    "/tests/user/user.spec.ts",
-    "/tests/task/task.spec.ts",
-    "/tests/project/project.spec.ts",
   ],
 };

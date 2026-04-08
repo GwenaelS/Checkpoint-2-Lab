@@ -29,13 +29,15 @@ const read: RequestHandler = async (req: AuthRequest, res, next) => {
       return;
     }
 
-    const result = await userRepository.read(user.id);
+    const userId = Number(req.params.id);
+
+    const result = await userRepository.read(userId);
     // If the user is not found, respond with HTTP 404 (Not Found)
     // Otherwise, respond with the user in JSON format
     if (result == null) {
       res.status(404).json({ information: "User not found" });
     } else {
-      res.status(200).json({ information: "User found", user });
+      res.status(200).json({ information: "User found", result });
     }
   } catch (err) {
     // Pass any errors to the error-handling middleware
