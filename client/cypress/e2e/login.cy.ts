@@ -23,5 +23,8 @@ describe("Login E2E", () => {
     // Submit form ==> Dashboard
     cy.get("button[type=submit]").click();
     cy.url().should("include", "/dashboard");
+
+    // A cookie should have been created
+    cy.getCookie("token").should("exist");
   });
 });
