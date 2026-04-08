@@ -15,7 +15,6 @@ export default function RegisterForm() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, email, password }),
-        credentials: "include",
       });
 
       const data = await response.json();
@@ -57,6 +56,8 @@ export default function RegisterForm() {
               </g>
             </svg>
             <input
+              id="username"
+              name="username"
               type="text"
               required
               placeholder="Username"
@@ -89,6 +90,8 @@ export default function RegisterForm() {
               </g>
             </svg>
             <input
+              id="email"
+              name="email"
               type="email"
               placeholder="mail@site.com"
               required
@@ -117,6 +120,8 @@ export default function RegisterForm() {
               </g>
             </svg>
             <input
+              id="password"
+              name="password"
               type="password"
               required
               placeholder="Password"
@@ -126,6 +131,7 @@ export default function RegisterForm() {
             />
           </label>
           <button
+            id="submit-button"
             type="submit"
             className="btn bg-purple-800 btn-wide btn-circle"
           >

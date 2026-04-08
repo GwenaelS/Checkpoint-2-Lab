@@ -10,10 +10,14 @@ export default function Header() {
           </Link>
         </div>
         <div className="flex gap-2">
-          <Link to="/register" className="btn">
+          <Link
+            to="/register"
+            className="btn"
+            data-testid="cypress-register-button"
+          >
             Inscription
           </Link>
-          <Link to="/login" className="btn">
+          <Link to="/login" className="btn" data-testid="cypress-login-button">
             Connexion
           </Link>
         </div>

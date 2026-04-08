@@ -62,6 +62,7 @@ export default function LoginForm() {
               </g>
             </svg>
             <input
+              id="email"
               type="email"
               name="email"
               placeholder="mail@site.com"
@@ -90,6 +91,7 @@ export default function LoginForm() {
               </g>
             </svg>
             <input
+              id="password"
               type="password"
               name="password"
               required
@@ -100,6 +102,7 @@ export default function LoginForm() {
             />
           </label>
           <button
+            id="submit-button"
             type="submit"
             className="btn bg-purple-800 btn-wide shadow-md shadow-white"
           >
