@@ -1,7 +1,7 @@
 import { faker } from "@faker-js/faker";
 
-describe("Register E2E", () => {
-  it("Should register a new user", () => {
+describe("Register and login E2E", () => {
+  it("Should register a new user then connect", () => {
     const username = faker.person.firstName();
     const email = faker.internet.email();
     const password = faker.internet.password();
@@ -36,5 +36,22 @@ describe("Register E2E", () => {
     // Submit form ==> Login page
     cy.get("button[type=submit]").click();
     cy.url().should("include", "/login");
+
+    // =================================
+
+    // Email input
+    cy.get("input[name=email]").type(email);
+    cy.get("input[name=email]").should("have.value", email);
+
+    // Password input
+    cy.get("input[name=password]").type(password);
+    cy.get("input[name=password]").should("have.value", password);
+
+    // Submit form ==> Dashboard
+    cy.get("button[type=submit]").click();
+    cy.url().should("include", "/dashboard");
+
+    // A cookie should have been created
+    cy.getCookie("token").should("exist");
   });
 });
