@@ -20,10 +20,11 @@ router.post("/api/users", userActions.add);
 router.delete("/api/users/:id", userActions.destroy);
 
 // ========== PROJECT ROUTES ==========
-router.get("/api/projects", projectActions.browse);
+router.get("/api/projects/me", verifyToken, projectActions.browseUser);
+router.get("/api/projects", projectActions.browseAdmin);
 router.get("/api/projects/:id", projectActions.read);
 router.put("/api/projects/:id", projectActions.edit);
-router.post("/api/projects", projectActions.add);
+router.post("/api/projects", verifyToken, projectActions.add);
 router.delete("/api/projects/:id", projectActions.destroy);
 
 // ========== TASK ROUTES ==========

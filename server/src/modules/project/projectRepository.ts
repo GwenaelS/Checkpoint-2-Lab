@@ -38,6 +38,15 @@ class ProjectRepository {
     return rows as TProject[];
   }
 
+  async readAllProjectByUserId(userId: number) {
+    const [rows] = await databaseClient.query<Rows>(
+      "SELECT project.* FROM project JOIN user_project ON project.id = user_project.project_id WHERE user_project.user_id = ?",
+      [userId],
+    );
+
+    return rows as TProject[];
+  }
+
   // The U of CRUD - Update operation
 
   async update(
@@ -64,6 +73,16 @@ class ProjectRepository {
     );
 
     // Return the affected rows after the SQL request
+    return result.affectedRows;
+  }
+
+  async addMember(userId: number, projectId: number) {
+    //
+    const [result] = await databaseClient.query<Result>(
+      "insert into user_project (user_id, project_id) values (?, ?)",
+      [userId, projectId],
+    );
+
     return result.affectedRows;
   }
 }

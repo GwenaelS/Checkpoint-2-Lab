@@ -1,16 +1,34 @@
 import type { RequestHandler } from "express";
 
+import type { AuthRequest } from "../../middlewares/verifyToken";
 // Import access to data
 import projectRepository from "./projectRepository";
 
 // The B of BREAD - Browse (Read All) operation
-const browse: RequestHandler = async (req, res, next) => {
+const browseAdmin: RequestHandler = async (req, res, next) => {
   try {
     // Fetch all projects
     const projects = await projectRepository.readAll();
 
     // Respond with the projects in JSON format
     res.status(200).json(projects);
+  } catch (err) {
+    // Pass any errors to the error-handling middleware
+    next(err);
+  }
+};
+
+const browseUser: RequestHandler = async (req: AuthRequest, res, next) => {
+  try {
+    const user = req.user;
+    const userId = req.user?.id;
+    if (!user || !userId) {
+      res.status(400).json({ information: "User not found" });
+      return;
+    }
+
+    const userProject = await projectRepository.readAllProjectByUserId(userId);
+    res.status(200).json({ userProject });
   } catch (err) {
     // Pass any errors to the error-handling middleware
     next(err);
@@ -90,8 +108,16 @@ const edit: RequestHandler = async (req, res, next) => {
 };
 
 // The A of BREAD - Add (Create) operation
-const add: RequestHandler = async (req, res, next) => {
+const add: RequestHandler = async (req: AuthRequest, res, next) => {
   try {
+    // Fetch a specific user based on the token ID
+    const user = req.user;
+    const userId = req.user?.id;
+    if (!user || !userId) {
+      res.status(404).json({ information: "User not found" });
+      return;
+    }
+
     // Verify if there is a request and the fields are all present
     if (
       !req.body ||
@@ -107,12 +133,18 @@ const add: RequestHandler = async (req, res, next) => {
       title: req.body.title,
       description: req.body.description,
       status: req.body.status,
-      created_by: req.body.created_by,
+      created_by: userId,
     };
 
     // Create the project
     const insertId = await projectRepository.create(project);
     if (!insertId) {
+      res.status(400).json({ information: "Cannot create the project" });
+      return;
+    }
+
+    const addMember = await projectRepository.addMember(userId, insertId);
+    if (!addMember) {
       res.status(400).json({ information: "Cannot create the project" });
       return;
     }
@@ -153,4 +185,4 @@ const destroy: RequestHandler = async (req, res, next) => {
   }
 };
 
-export default { browse, read, edit, add, destroy };
+export default { browseAdmin, browseUser, read, edit, add, destroy };
